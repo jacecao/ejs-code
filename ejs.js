@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = __dirname + '/functions.ejs';
 const str = fs.readFileSync(path, 'utf8');
 
-const utils = require('./utils.js');
+const utils = require('./fun/utils.js');
 
-const compile = require('./compile.js');
+const compile = require('./fun/compile.js');
 
 function filtered(js) {
 	

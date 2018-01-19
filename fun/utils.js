@@ -1,3 +1,5 @@
+// 替换文本中所有的符号
+
 exports.escape = function (html) {
 	return String(html)
 		.replace(/&/g, '&amp;')
