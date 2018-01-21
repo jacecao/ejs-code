@@ -14,11 +14,26 @@ const _private = {
 };
 
 const read = require('fs').readFileSync;
-const 
+
+const path = require('path');
+// 获取包含文件的地址
+const resolveInclude = function (name, filename) {
+	// 组合文件路径
+	let _path = path.join(path.dirname(filename), name);
+	// 获取文件后缀
+	let ext = path.extname(name);
+	// 如果没有后缀名，那么加上后缀名
+	if (!ext) {
+		_path += '.ejs';
+	}
+	return _path;
+}
 
 const parse = function(str, options = _private) {
 	const open = options.open;
 	const close = options.close;
+	// 当前模板文件名
+	const filename = options.filename;
 
 	let buf = ""; // 储存JS代码字符串
 
@@ -42,6 +57,8 @@ const parse = function(str, options = _private) {
 	let consumeEOL = false;
 
 	// 字符串解析开始啦
+	// 需要注意的是这里解析字符串的方式
+	// <% xxx %> 按照这样的开/闭合标签来逐个构建JS代码字符串
 	for (let i = 0; i < str.length; i++) {
 		let stri = str[i];
 		// 检查字符串片段是否包含‘<%’字符串
@@ -62,7 +79,7 @@ const parse = function(str, options = _private) {
 				// 所以这里使用了escape这个函数
 				// escape主要实现转译
 				case '=':
-					prefix = "', escape((" + line + ', ';
+					prefix = `', escape(( ${line} , `;
 					postfix = ")), '";
 					// 注意操作完毕后，需要跳过‘=’字符
 					// 所以这里++i
@@ -70,12 +87,12 @@ const parse = function(str, options = _private) {
 					break;
 				// 输出未转译的值
 				case '-':
-					prefix = "', (" + line + ', ';
+					prefix = `', ( ${line} , `;
 					postfix = "), '";
 					++ i;
 					break;
 				default:
-					prefix = "');" + line + ";";
+					prefix = `'); ${line};`;
 					postfix = "; buf.push('";	
 			}
 
@@ -87,7 +104,11 @@ const parse = function(str, options = _private) {
 			let end = str.indexOf(close, i);
 
 			if (end < 0) {
-				throw new Error('could not find matching close tag"' + close + '".');
+				// 为什么这里仅仅跑出错误而不终止程序呢？
+				// 这是因为作者在compile.js这个文件中有错误捕获
+				// 也就是给出了一个统一的错误处理方式
+				// 而没有这里直接return
+				throw new Error(`could not find matching close tag" ${close}".`);
 			}
 			// 截取<% js code %>
 			// 截取字符串中JS代码部分
@@ -95,7 +116,7 @@ const parse = function(str, options = _private) {
 			let start = i;
 			// 用户储存当前模板文件中包含的（其他模板文件的解析字符串）
 			let include = null;
-			// ......
+			// js代码字符串的字符索引记录
 			let n = 0;
 
 			// ........
@@ -109,8 +130,41 @@ const parse = function(str, options = _private) {
 			// <% include('template-file', data) %>
 			// <% include template-file %>
 			if (js.trim().indexOf('include') == 0) {
+				// 获取include后面的文件路径
+				let name = js.trim().slice(7).trim();
+				// 如果在配置对象中没有给filename值
+				// 那么include功能无法实现
+				if (!filename) {
+					throw new Error("filename option is required for includes");
+				}
+				// 获取包含文件的路径
+				let path = resolveInclude(name, filename);
+				// 读取包含文件
+				include = read(path, 'utf8');
+				// 处理包含文件（其实这里就是一个回调）
+				include = parse(include, {
+					filename: path,
+					_with: false,
+					open: open,
+					close: close,
+					compileDebug: compileDebug
+				});
 
+				buf += `' (function () { ${include} })() '`;
+				// 清空js变量
+				js = '';
 			}
+			// 这里是一个取反运算符
+			// 这是一个非常巧妙的运用
+			// indexOf 在匹配字符串后会返回大于等于0的数 否则返回-1
+			// 这里通过取反就解决了布尔运算
+			// 当然返回-1时，取反运算结果就为0 -> false, 其他情况都返回 true
+			while (~ (n = indexOf("\\n", n)) ) {
+				n ++;
+				lineno ++;
+			}
+
+
 
 		}
 

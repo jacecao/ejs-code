@@ -17,7 +17,7 @@ module.exports = function (str, options = {}) {
 		// 这里构成的是js代码字符串
 		// 这是一个非常核心的点
 		str = [
-			'let _stack = { lineno: 1, input: ' + input + ', filename: ' + filename + ' };',
+			`let _stack = { lineno: 1, input: ' ${input} ', filename: ' ${filename} ' };`,
 			// 这里是将rethrow方法本身转换为字符串
 			// 其实这里得到的就是rethrow的代码文本信息
 			rethrow.toString(),
