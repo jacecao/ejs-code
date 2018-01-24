@@ -32,8 +32,10 @@ const resolveInclude = function (name, filename) {
 const parse = function(str, options = _private) {
 	const open = options.open;
 	const close = options.close;
+	const compileDebug = options.compileDebug;
 	// 当前模板文件名
 	const filename = options.filename;
+
 
 	let buf = ""; // 储存JS代码字符串
 
@@ -93,7 +95,7 @@ const parse = function(str, options = _private) {
 					break;
 				default:
 					prefix = `'); ${line};`;
-					postfix = "; buf.push('";	
+					postfix = "; _buf.push('";	
 			}
 
 			// 检查模板字符串中是否包含闭合标签‘%>’
@@ -159,14 +161,14 @@ const parse = function(str, options = _private) {
 			// indexOf 在匹配字符串后会返回大于等于0的数 否则返回-1
 			// 这里通过取反就解决了布尔运算
 			// 当然返回-1时，取反运算结果就为0 -> false, 其他情况都返回 true
-			while (~ (n = indexOf("\\n", n)) ) {
+			while (~ (n = js.indexOf("\\n", n)) ) {
 				n ++;
 				lineno ++;
 			}
 
 			// 过滤特殊字符
 			// 前已经筛选了这两种情况 1. <%= %>  2. <%- >
-			// 现在我们需要进入第二级别的筛选 <%=: %> <%=# %> <%=% %>
+			// 现在我们需要进入第二级别的筛选 <%=: %> <%# %> <%% %>
 			// 这里筛选的是‘：’ ‘ #’ ‘ %’ 
 			// 由于ejs文档并没有说明对修饰符#、%的使用方法
 			// 所以这里对这两个修饰符不写入
@@ -180,15 +182,69 @@ const parse = function(str, options = _private) {
 				case ':':
 					js = filtered(js);
 					break;
+				case '%':
+					js = ` _buf.push('<% ${js.substring(1).replace(/'/g, "\\'")} %>');`;
+          			break;
+          		case '#':
+          			// 实现代码注释
+          			js = "";
+          			break;	
 			}
 
+			if (js) {
+				if (js.lastIndexOf('//') > js.lastIndexOf('\n')) {
+					js += '\n';
+				}
+				buf += prefix;
+				buf += js;
+				buf += postfix;
+			}
+			// 这里是将字符串序列跳过结尾标记标签
+			// js = '<%=for(){}%>'
+			// 由于前面对开始标记标签进行了过滤，所以根据上面这个字符串得出
+			// start = 3; i = 3;
+			// end = 10; end为结尾标记标签的起始索引
+			// 现在要将i索引移到'>'之后 即 i = 12
+			// 10 - 3 + 2 = 9 >> 这里得到的是标记里的字符串长度
+			// 那为什么这里需要减一呢？
+			// 理清这里也非常关键，因为这里是包裹在for循环里
+			// 如果当前i直接跳过‘>’, 那么下一次循环 i = 13,这样就会出现问题
+			// 这里-1的目的其实就是综合for循环每次+1
+			// 这样下一次循环i的其实值就是12 
+			i += end - start + close.length - 1;
 
 
+		// 如果字符串为'\'
+		} else if (stri == "\\") {
+			buf += '\\\\';
+		//  
+		} else if (stri == "'") {
+			buf += "\\'";
+
+		}else if (stri == "\r") {
+
+		} else if (stri == "\n") {
+			if (consumeEOL) {
+				consumeEOL = false;
+			} else {
+				buf  += "\\n";
+				lineno ++;
+			}
+
+		} else {
+
+			buf += stri;
 		}
 
 	}
 
+	if (options._with !== false) {
+		buf += "'); })();\n} \nreturn _buf.join('');"
+	} else {
+		buf += "'); \n return _buf.join('');";
+	}
 
+	return buf;
 }
 
 
