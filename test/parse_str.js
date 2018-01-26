@@ -23,10 +23,10 @@ for (let i = 0, len = str.length; i < len; i++) {
 
 let n = 0;
 let lineno = 1;
-console.log(str[17] == "\n");
+console.log(str);
 
 while ( ~ ( n = str.indexOf('\n', n) ) ) {
-	console.log(n);
+	console.log(JSON.stringify(str[n]));
 	n++;
 	lineno++;
 }
