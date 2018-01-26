@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-// console.log(path.join(__dirname, '../functions.ejs'));
-let str = fs.readFileSync(path.join(__dirname, '../functions.ejs'), 'utf8');
+// console.log(path.join(__dirname, './template/main.ejs'));
+let str = fs.readFileSync(path.join(__dirname, './template/test-2.ejs'), 'utf8');
 
 str = JSON.stringify(str);
 // console.log(str + '\n');
@@ -20,10 +20,12 @@ for (let i = 0, len = str.length; i < len; i++) {
 }
 */
 // console.log(_str);
+
+console.log(str);
 let n = 0;
 let lineno = 1;
-while ( ~ ( n = str.indexOf('\\n', n) ) ) {
-	console.log(!(~n));
+while ( ~ ( n = str.indexOf('\n', n) ) ) {
+	console.log((~n));
 	n++;
 	lineno++;
 }

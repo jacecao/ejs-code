@@ -1,9 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const parse = require('../fun/parse.js');
-let str = fs.readFileSync(path.join(__dirname, '../functions.ejs'), 'utf8');
+
+let _filename = path.join(__dirname, './template/test-2.ejs');
+
+let str = fs.readFileSync(_filename, 'utf8');
 
 str = JSON.stringify(str);
 
 console.log(str);
-console.log(parse(str));
+let buf = parse(str, {
+	filename: _filename
+});
+console.log(buf);
