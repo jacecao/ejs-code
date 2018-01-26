@@ -201,6 +201,10 @@ const parse = function(str, options = _private) {
 			// 这里通过取反就解决了布尔运算
 			// 当然返回-1时，取反运算结果就为0 -> false, 其他情况都返回 true
 			// 这里要判断的是<%内部有\n符号的出现%>
+			/*
+				这里需要注意一个问题，因为
+
+			 */
 			while (~ (n = js.indexOf("\n", n)) ) {
 				console.log(`js: ${js} ${n}`);
 				n ++;

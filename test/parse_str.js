@@ -3,7 +3,7 @@ const path = require('path');
 // console.log(path.join(__dirname, './template/main.ejs'));
 let str = fs.readFileSync(path.join(__dirname, './template/test-2.ejs'), 'utf8');
 
-str = JSON.stringify(str);
+// str = JSON.stringify(str);
 // console.log(str + '\n');
 /*
 let _str = '';
@@ -21,11 +21,12 @@ for (let i = 0, len = str.length; i < len; i++) {
 */
 // console.log(_str);
 
-console.log(str);
 let n = 0;
 let lineno = 1;
+console.log(str[17] == "\n");
+
 while ( ~ ( n = str.indexOf('\n', n) ) ) {
-	console.log((~n));
+	console.log(n);
 	n++;
 	lineno++;
 }
