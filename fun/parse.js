@@ -63,7 +63,9 @@ const parse = function(str, options = _private) {
 	let lineno = 1;
 
 	// 是否保持HTML代码结构样式
-	// 这里主要是HTML中断行和缩进
+	// 这里主要是否保持换行
+	// 如果为真，那么保持一行显示，否则按照原始格式显示
+	// 这里主要是对"-%>这之间的换行<%"进行处理
 	let consumeEOL = false;
 
 	// 字符串解析开始啦
