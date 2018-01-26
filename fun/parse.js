@@ -206,7 +206,6 @@ const parse = function(str, options = _private) {
 
 			 */
 			while (~ (n = js.indexOf("\n", n)) ) {
-				console.log(`js: ${js} ${n}`);
 				n ++;
 				lineno ++;
 			}
@@ -272,18 +271,18 @@ const parse = function(str, options = _private) {
 		}else if (stri == "\r") {
 
 		} else if (stri == "\n") {
-			// 这个情况我个人认为没什么作用
-			// 可能作者是为了解决因为注释而添加的\n符号
-			// 这里的作用应该发生在有include时
-			/*
-				if (js.lastIndexOf('//') > js.lastIndexOf('\n')) {
-					js += '\n';
-				}
-			 */
+			// consumeEOL-为真 则取消后面的换行，也就是保持在一行显示
+			// 例如：
+			// <% for () { -%>
+			// 	test
+			// <%}&>
+			// 转换为 <% for () { %> test <%}%>  就是这个意思
+			// 个人感觉这个比较鸡肋 
 			if (consumeEOL) {
 				consumeEOL = false;
 			} else {
-				buf  += "\\n";
+				// buf += "\\ntest";
+				buf  += "\\nx";
 				lineno ++;
 			}
 
