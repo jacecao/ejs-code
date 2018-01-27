@@ -16,6 +16,10 @@ const _private = {
 const read = require('fs').readFileSync;
 // nodejs 路径整合模块，实现不同路径表达方式的兼容
 const path = require('path');
+
+const filtered = require('./filtered.js');
+
+
 // 获取包含文件的地址
 const resolveInclude = function (name, filename) {
 	// 组合文件路径
@@ -284,7 +288,7 @@ const parse = function(str, options = _private) {
 				consumeEOL = false;
 			} else {
 				// buf += "\\ntest";
-				buf  += "\\nx";
+				buf  += "\\n";
 				lineno ++;
 			}
 

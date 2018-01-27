@@ -1,17 +1,27 @@
+/*
+**  compile将解析后的字符串组装为一个可执行的函数
+ */
+
+// 特殊字符转译处理
 const utils = require('./utils.js');
+// 错误处理模块
 const rethrow = require('./rethrow.js');
+// ejs文件解析模块
+const parse = require('./parse.js');
 
 module.exports = function (str, options = {}) {
 	// 指定文本替换方式默认为utils.js文件总的内容
 	let escape = options.escape || utils.escape;
 	// 这里这里传入的str是模板内容
-	// 也就是functions.ejs文件里的内容
+	// 也就是ejs文件里的内容
 	let input = JSON.stringify(str);
-	// 是否开启调试, 默认开启
+	// 是否开启调试, 默认true
 	let compileDebug = options.compileDebug !== false;
 	// 储存当前模板文件地址
 	let filename = options.filename ? 
-		JSON.stringify(options.filename) : 'undefined';
+		JSON.stringify(options.filename) : undefined;
+	// 直接返回解析后的函数 
+	let getFun = options.getFun || false;
 
 	if (compileDebug) {
 		// 这里构成的是js代码字符串
@@ -20,20 +30,45 @@ module.exports = function (str, options = {}) {
 			`let _stack = { lineno: 1, input: ' ${input} ', filename: ' ${filename} ' };`,
 			// 这里是将rethrow方法本身转换为字符串
 			// 其实这里得到的就是rethrow的代码文本信息
+			// 因为这里需要被转为字符串，所以rethrow就不要使用箭头函数了
 			rethrow.toString(),
 			'try {',
-			//exports.parse(str, options),
+				parse(str, options),
 			'} catch (err) {',
 			'  rethrow(err, _stack.input, _stack.filename, _stack.lineno);',
 			'}'
 		].join("\n");
 	} else {
-		// 如果没有开启调试
-		// parse具体做了什么呢？
-		// 参见parse.js
+		// 直接返回解析后的JS代码字符串
 		str = parse(str, options);
 	}
-	
 
-	console.log(str);
+	if (options.debug) {
+		console.log(str);
+	}
+
+	if (getFun) {
+		str = `escape = escape || ${escape.toString()};\n ${str}`
+	}
+
+	// 通过Function构造函数,将JS字符串作为函数输出
+	// new function(arg1, arg2, ..., argN, function_body)
+	// 每个 arg 都是一个参数，最后一个参数是函数主体（要执行的代码）。
+	// 这些参数必须是字符串。
+	try {
+
+		const fn = new Function('locals', 'filters', 'escape', 'rethrow', str);
+	} catch (err) {
+		
+		if (err.name == 'SyntaxError') {
+			err.message += filename ? `in ${filename}` : 'while compiling ejs';
+		}
+		throw err;
+	}
+
+	if (getFun) { return fn; }
+
+	return function (locals) {
+		return fn.call(this, locals, filters, escape, rethrow);
+	}
 }

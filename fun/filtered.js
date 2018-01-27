@@ -14,7 +14,7 @@
 // 但却用了极少的代码来构建了整个过滤执行逻辑
 // 这里需要熟悉reduce()方法
 
-module.exports = function (js_str) {
+module.exports = (js_str) => {
 	let _arr = js_str.substr(1).split('|');
 	// -> _arr = ['users', "map:'name'", 'join']
 	return _arr.reduce((prev_str, next_filter) => {

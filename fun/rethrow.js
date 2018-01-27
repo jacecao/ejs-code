@@ -1,3 +1,5 @@
+// 统一错误处理模块
+
 module.exports = function (err, str, filename, lineno) {
 	
 	let lines = str.split('\n');
@@ -20,6 +22,5 @@ module.exports = function (err, str, filename, lineno) {
 		+ err.message;
 
 	throw err;
-
 
 }	
