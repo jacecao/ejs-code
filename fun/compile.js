@@ -20,7 +20,7 @@ module.exports = function (str, options = {}) {
 	// 储存当前模板文件地址
 	let filename = options.filename ? 
 		JSON.stringify(options.filename) : undefined;
-	// 直接返回解析后的函数 
+	// 直接返回解析后的函数, 默认不返回
 	let getFun = options.getFun || false;
 
 	if (compileDebug) {
@@ -44,29 +44,36 @@ module.exports = function (str, options = {}) {
 	}
 
 	if (options.debug) {
+		// 显示当前解析后的代码信息
 		console.log(str);
 	}
 
 	if (getFun) {
-		str = `escape = escape || ${escape.toString()};\n ${str}`
+		str = `escape = escape || ${escape.toString()}; \n ${str}`;
 	}
 
 	// 通过Function构造函数,将JS字符串作为函数输出
 	// new function(arg1, arg2, ..., argN, function_body)
 	// 每个 arg 都是一个参数，最后一个参数是函数主体（要执行的代码）。
 	// 这些参数必须是字符串。
+	let fn = null;
+	// 这里有一个需要注意的地方
+	// 在源码中在下面try块中声明fn
+	// 这种方式其实是不可取的，在ES5中就规定不可以在块作用域中声明函数
+	// 在ES6中声明可以在块作用域中声明函数，但不可以块外部使用
 	try {
 
-		const fn = new Function('locals', 'filters', 'escape', 'rethrow', str);
+		fn = new Function('locals', 'filters', 'escape', 'rethrow', str);
+	
 	} catch (err) {
 		
 		if (err.name == 'SyntaxError') {
-			err.message += filename ? `in ${filename}` : 'while compiling ejs';
+			err.message = filename ? `in ${filename}` : 'while compiling ejs';
 		}
 		throw err;
 	}
 
-	if (getFun) { return fn; }
+	if (getFun) {return fn;}
 
 	return function (locals) {
 		return fn.call(this, locals, filters, escape, rethrow);

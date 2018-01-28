@@ -1,6 +1,6 @@
 // 统一错误处理模块
 
-module.exports = function (err, str, filename, lineno) {
+module.exports = function rethrow (err, str, filename, lineno) {
 	
 	let lines = str.split('\n');
 	let start = Math.max(lineno - 3, 0);
