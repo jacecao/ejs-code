@@ -8,9 +8,7 @@ let str = fs.readFileSync(_filename, 'utf8');
 
 
 // console.log(str);
-compile(str, {
+let fun = compile(str, {
 	filename: _filename,
-	debug: false,
-	getFun: true
 });
-// console.log(buf);
+console.log(fun + '');

@@ -1,26 +1,27 @@
-const fs = require('fs');
-const path = __dirname + '/functions.ejs';
-const str = fs.readFileSync(path, 'utf8');
-
-const utils = require('./fun/utils.js');
-
 const compile = require('./fun/compile.js');
 
-function filtered(js) {
-	
-	return js.substr(1).split('|').reduce( (js, filter) => {
-		let parts = filter.split(':');
-		let name = parts.shift();
-		let args = parts.join(':') || '';
+// 文件缓存储存
+let cache = {};
 
-		if (args) {
-			args = ',' + args;
+// ejs核心模块
+// str 模板字符串
+// options  模板解析配置文件
+
+module.exports.render = (str, options) {
+	let fn;
+	// 是否开启文件缓存
+	if (options.cache) {
+
+		if (options.filename) {
+			// 如果配置给了文件名
+			// 检查缓存中是否已经储存，如果没有就执行缓存
+			fn = cache[options.filename] || 
+				 (cache[options.filename] = compile(str, options));
+		} else {
+			throw new Error("'cache' option requires 'filename'. ");
 		}
 
-		return 'filters.' + name + '(' + js + args + ')';
-	});
-
+	} else {
+		fn = compile(str, options);
+	}
 }
-
-// let _text = utils.escape(str);
-compile(str, {filename: path});

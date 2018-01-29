@@ -8,6 +8,8 @@ const utils = require('./utils.js');
 const rethrow = require('./rethrow.js');
 // ejs文件解析模块
 const parse = require('./parse.js');
+// 数据过滤模块
+const filters = require('./filters.js');
 
 module.exports = function (str, options = {}) {
 	// 指定文本替换方式默认为utils.js文件总的内容
@@ -66,7 +68,7 @@ module.exports = function (str, options = {}) {
 		fn = new Function('locals', 'filters', 'escape', 'rethrow', str);
 	
 	} catch (err) {
-		
+		// 如果错误名称为语法错误，给出出错的文件名
 		if (err.name == 'SyntaxError') {
 			err.message = filename ? `in ${filename}` : 'while compiling ejs';
 		}
