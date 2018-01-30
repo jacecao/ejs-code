@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 // console.log(path.join(__dirname, './template/main.ejs'));
-let str = fs.readFileSync(path.join(__dirname, './template/test2.ejs'), 'utf8');
+let str = fs.readFileSync(path.join(__dirname, '../template/test2.ejs'), 'utf8');
 
 // str = JSON.stringify(str);
 // console.log(str + '\n');

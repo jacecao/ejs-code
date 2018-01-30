@@ -29,6 +29,7 @@ module.exports.render = (str, options) => {
 	} else {
 		fn = compile(str, options);
 	}
-
-	return fn;
+	// 这里也可以通过配置文件中data属性传入数据
+	// options.data 必须是一个对象
+	return fn(options.data ? options.data : options);
 }
