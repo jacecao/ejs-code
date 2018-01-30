@@ -107,7 +107,9 @@ const parse = function(str, options = _private) {
 					/*
 						str > "<h1><%= name %></h1>"
 						buf = _buf.push('"<h1>', escape((${line}, name)),'</h1>"');
-
+						【注意这里有一个非常优雅的代码片段】
+						那就是escape((code1, code2))
+						巧妙之处请看readme
 					 */
 					prefix = `', escape(( ${line} , `;
 					postfix = ")), '";

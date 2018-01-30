@@ -2,13 +2,18 @@ const compile = require('./fun/compile.js');
 
 // 文件缓存储存
 let cache = {};
-
+// 清空缓存
+module.exports.clearCache = () => cache = {};
+// 获取缓存
+module.exports.cache = cache;
 // ejs核心模块
 // str 模板字符串
 // options  模板解析配置文件
 
-module.exports.render = (str, options) {
+module.exports.render = (str, options) => {
 	let fn;
+	// 默认开启缓存
+	let _cache = options.cache !== false;
 	// 是否开启文件缓存
 	if (options.cache) {
 
@@ -24,4 +29,6 @@ module.exports.render = (str, options) {
 	} else {
 		fn = compile(str, options);
 	}
+
+	return fn;
 }
