@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const compile = require('../fun/compile.js');
+const compile = require('../lib/compile.js');
 
 let _filename = path.join(__dirname, './template/test3.ejs');
 

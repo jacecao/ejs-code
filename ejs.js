@@ -1,4 +1,4 @@
-const compile = require('./fun/compile.js');
+const compile = require('./lib/compile.js');
 
 // 文件缓存储存
 let cache = {};

@@ -1,5 +1,5 @@
 // 过滤器测试
-const filters = require('../fun/filters');
+const filters = require('../lib/filters');
 
 let obj = {
 	name: 'jacecao',
